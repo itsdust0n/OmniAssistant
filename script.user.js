@@ -16,7 +16,7 @@
 
     const listeningOnClasses = ["слушает на занятиях", "слушает материал", "слушает на парах"];
     const doingPracticesOnClasses = ["выполняет задания на паре", "выполняет поставленные задания", "выполняет задания", "выполняет все практики", "выполняет практики"];
-    const getDistractedOnClasses = ["отвлекается"];
+    const getDistractedOnClasses = ["отвлекается на занятиях", "отвлекается на парах",  "отвлекается во время пар"];
 
     const doingHW = ["выполняет домашние задания в срок", "выполняет домашние задания", "с выполнением домашних заданий проблем нет"];
     const notDoingHomework = ["не выполняет домашние задания"];
@@ -30,8 +30,7 @@
             "Рекомендую сосредоточиться на занятиях и избегать отвлечений.",
             "Рекомендую уделять больше внимания материалу на занятиях.",
             "Рекомендую уменьшить количество отвлекающих факторов на парах.",
-            "Рекомендую организовать свое рабочее место, чтобы избежать отвлечений.",
-            "Рекомендую активно участвовать в обсуждениях, чтобы лучше усваивать материал."
+            "Рекомендую организовать свое рабочее место, чтобы избежать отвлечений."
         ],
         homeworkDeadline: [
             "Рекомендую организовать свое время лучше и соблюдать сроки выполнения домашних заданий.",
@@ -44,7 +43,6 @@
             "Рекомендую приходить на занятия вовремя для лучшего восприятия материала.",
             "Рекомендую обратить внимание на расписание и планировать приход на занятия заранее.",
             "Рекомендую избегать опозданий, чтобы не пропускать важные моменты на занятиях.",
-            "Рекомендую просыпаться чуть раньше, чтобы успевать приходить на занятия.",
             "Рекомендую заранее проверять транспорт и его расписание, чтобы избежать задержек."
         ],
         participation: [
@@ -63,8 +61,6 @@
         ]
     };
     
-    
-
     const savedSelections = {
         work: {},
         homework: null,
@@ -101,7 +97,7 @@
     
         let positives = [];
         let negatives = [];
-        let homeworkReview = "";  // Новая переменная для домашнего задания
+        let homeworkReview = ""; // Новая переменная для домашнего задания
         let recommendation = "";
     
         // Работа на парах
@@ -127,35 +123,47 @@
         // Домашнее задание
         let homeworkStatus = document.querySelector("input[name='homework']:checked")?.value;
         if (homeworkStatus) {
-            if (!savedSelections.homework) {
-                if (homeworkStatus === "Выполняет") savedSelections.homework = getRandomElement(doingHW);
-                else if (homeworkStatus === "Не выполняет") savedSelections.homework = getRandomElement(notDoingHomework);
-                else if (homeworkStatus === "Проблема с дедлайнами") savedSelections.homework = getRandomElement(hwDeadlineProblems);
+            savedSelections.homework = null; // Очищаем предыдущее значение, чтобы обновить домашнее задание
+    
+            if (homeworkStatus === "Выполняет") {
+                savedSelections.homework = getRandomElement(doingHW);
+            } else if (homeworkStatus === "Не выполняет") {
+                savedSelections.homework = getRandomElement(notDoingHomework);
+                negatives.push(savedSelections.homework); // Добавляем негативное замечание
+            } else if (homeworkStatus === "Проблема с дедлайнами") {
+                savedSelections.homework = getRandomElement(hwDeadlineProblems);
+                negatives.push(savedSelections.homework); // Добавляем негативное замечание
             }
-            homeworkReview = `${studentName} ${savedSelections.homework}.`;  // Отдельное предложение для домашнего задания
+            homeworkReview = savedSelections.homework; // Убираем имя студента
         }
     
         // Посещаемость
         let attendanceStatus = document.querySelector("input[name='attendance']:checked")?.value;
         if (attendanceStatus) {
             if (!savedSelections.attendance) {
-                if (attendanceStatus === "Приходит вовремя") savedSelections.attendance = getRandomElement(goingOnTime);
-                else if (attendanceStatus === "Опаздывает") savedSelections.attendance = getRandomElement(goingLate);
+                if (attendanceStatus === "Приходит вовремя") {
+                    savedSelections.attendance = getRandomElement(goingOnTime);
+                } else if (attendanceStatus === "Опаздывает") {
+                    savedSelections.attendance = getRandomElement(goingLate);
+                    negatives.push(savedSelections.attendance); // Добавляем негативное замечание
+                }
             }
-            if (attendanceStatus === "Приходит вовремя") positives.push(savedSelections.attendance);
-            else negatives.push(savedSelections.attendance);
+            if (attendanceStatus === "Приходит вовремя") {
+                positives.push(savedSelections.attendance);
+            }
         }
     
         // Формируем отзыв
-        let reviewParts = [];
+        let reviewParts = []; // Начинаем с пустого массива
     
+        // Положительные замечания
         if (positives.length > 0) {
-            reviewParts.push(`${studentName} ${positives.join(" и ")}`);
+            reviewParts.push(positives.join(" и "));
         }
     
         // Добавляем предложение о домашнем задании
         if (homeworkReview) {
-            reviewParts.push(homeworkReview);
+            reviewParts.push(homeworkReview); // Не добавляем точку здесь
         }
     
         // Негативные замечания
@@ -180,11 +188,19 @@
             recommendation = getRandomRecommendation(recommendations.overallImprovement);
         }
     
-        reviewParts.push(recommendation.trim());
+        // Формируем финальный отзыв, добавляя имя студента только один раз
+        let finalReview = `${studentName} ${reviewParts.join(". ")}. ${recommendation.trim()}`;
     
-        return reviewParts.join(". ") + ".";
-    }            
-
+        // Убираем лишнюю точку, если она в конце
+        if (finalReview.endsWith('. .')) {
+            finalReview = finalReview.slice(0, -1); // Убираем лишнюю точку
+        }
+    
+        // Возвращаем финальный отзыв
+        return finalReview.trim();
+    }
+    
+    
     function addElements() {
         const reviewsDiv = document.getElementById('reviews');
         if (!reviewsDiv) return false;
