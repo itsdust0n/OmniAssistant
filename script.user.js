@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ReviewHelper
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.5
 // @description  Try to write an individual review for more than 100 students and not to die.
 // @author       itsdust0n
 // @match        https://omni.top-academy.ru/*
@@ -38,6 +38,11 @@
             "Рекомендую обратить внимание на сроки, чтобы избежать проблем с дедлайнами.",
             "Рекомендую работать над домашними заданиями постепенно, а не в последний момент.",
             "Рекомендую использовать календарь для отслеживания дедлайнов."
+        ],
+        notDoingHomework: [
+            "Рекомендую сосредоточиться на выполнении ДЗ.",
+            "Рекомендую сосредоточиться на выполнении домашних заданий.",
+            "Рекомендую выполнять домашние задания, ведь так можно получить балл выше."
         ],
         tardiness: [
             "Рекомендую приходить на занятия вовремя для лучшего восприятия материала.",
@@ -86,10 +91,6 @@
             console.warn("Поле комментария не найдено");
         }
     }
-
-    function getRandomRecommendation(array) {
-        return array[Math.floor(Math.random() * array.length)];
-    }
     
     function generateReview() {
         const studentName = getStudentName();
@@ -97,6 +98,7 @@
     
         let positives = [];
         let negatives = [];
+        let negativesCodes = [];
         let homeworkReview = ""; // Новая переменная для домашнего задания
         let recommendation = "";
     
@@ -118,25 +120,28 @@
                 savedSelections.work.distracted = getRandomElement(getDistractedOnClasses);
             }
             negatives.push(savedSelections.work.distracted);
+            negativesCodes.push("distraction");
         }
     
         // Домашнее задание
         let homeworkStatus = document.querySelector("input[name='homework']:checked")?.value;
         if (homeworkStatus) {
             savedSelections.homework = null; // Очищаем предыдущее значение, чтобы обновить домашнее задание
-    
+
             if (homeworkStatus === "Выполняет") {
                 savedSelections.homework = getRandomElement(doingHW);
+                homeworkReview = savedSelections.homework; // Добавляем в отдельное поле для отображения, не добавляя к "негативам"
             } else if (homeworkStatus === "Не выполняет") {
                 savedSelections.homework = getRandomElement(notDoingHomework);
-                negatives.push(savedSelections.homework); // Добавляем негативное замечание
+                negatives.push(savedSelections.homework); // Добавляем негативное замечание только сюда
+                negativesCodes.push("notDoingHomework");
             } else if (homeworkStatus === "Проблема с дедлайнами") {
                 savedSelections.homework = getRandomElement(hwDeadlineProblems);
-                negatives.push(savedSelections.homework); // Добавляем негативное замечание
+                negatives.push(savedSelections.homework); // Добавляем негативное замечание только сюда
+                negativesCodes.push("deadlineProblem");
             }
-            homeworkReview = savedSelections.homework; // Убираем имя студента
         }
-    
+
         // Посещаемость
         let attendanceStatus = document.querySelector("input[name='attendance']:checked")?.value;
         if (attendanceStatus) {
@@ -146,6 +151,7 @@
                 } else if (attendanceStatus === "Опаздывает") {
                     savedSelections.attendance = getRandomElement(goingLate);
                     negatives.push(savedSelections.attendance); // Добавляем негативное замечание
+                    negativesCodes.push("tardiness")
                 }
             }
             if (attendanceStatus === "Приходит вовремя") {
@@ -173,19 +179,21 @@
         }
     
         // Рекомендации
-        if (negatives.includes("не выполняет домашние задания")) {
-            recommendation = getRandomRecommendation(recommendations.homeworkDeadline);
-        } else if (negatives.includes("отвлекается")) {
-            recommendation = getRandomRecommendation(recommendations.distraction);
-        } else if (negatives.includes("опаздывает на занятия")) {
-            recommendation = getRandomRecommendation(recommendations.tardiness);
-        } else if (negatives.includes("не участвует активно на занятиях")) {
-            recommendation = getRandomRecommendation(recommendations.participation);
+        if (negativesCodes.includes("notDoingHomework")) {
+            recommendation = getRandomElement(recommendations.notDoingHomework);
+        } else if (negativesCodes.includes("deadlineProblem")) {
+            recommendation = getRandomElement(recommendations.homeworkDeadline);
+        } else if (negativesCodes.includes("distraction")) {
+            recommendation = getRandomElement(recommendations.distraction);
+        } else if (negativesCodes.includes("tardiness")) {
+            recommendation = getRandomElement(recommendations.tardiness);
+        } else if (negativesCodes.includes("participation")) {
+            recommendation = getRandomElement(recommendations.participation);
         }
-    
+
         // Если нет негативов, давать общую рекомендацию
         if (recommendation === "") {
-            recommendation = getRandomRecommendation(recommendations.overallImprovement);
+            recommendation = getRandomElement(recommendations.overallImprovement);
         }
     
         // Формируем финальный отзыв, добавляя имя студента только один раз
@@ -195,7 +203,8 @@
         if (finalReview.endsWith('. .')) {
             finalReview = finalReview.slice(0, -1); // Убираем лишнюю точку
         }
-    
+        console.log(`negatives: ${negatives}`);
+        console.log(`negativesCodes: ${negativesCodes}`);
         // Возвращаем финальный отзыв
         return finalReview.trim();
     }
@@ -204,99 +213,156 @@
     function addElements() {
         const reviewsDiv = document.getElementById('reviews');
         if (!reviewsDiv) return false;
-
+    
         const targetDiv = reviewsDiv.querySelector('.paddingLeft.clearfix.paddingRight');
         if (!targetDiv) return false;
-
+    
         if (targetDiv.querySelector('#custom-checkbox-section')) return true;
-
+    
         const container = document.createElement('div');
         container.id = 'custom-checkbox-section';
         container.style.display = 'flex';
         container.style.gap = '20px';
+        container.style.padding = '15px';
+        container.style.border = '1px solid #ddd';
+        container.style.borderRadius = '8px';
+        container.style.backgroundColor = '#f9f9f9';
+        container.style.marginTop = '15px';
 
-        function createCheckboxSection(title, options) {
+        function createFAQSection(title, option) {
             const section = document.createElement('div');
+            section.style.border = '1px solid #e0e0e0';
+            section.style.borderRadius = '8px';
+            section.style.padding = '10px';
+            section.style.backgroundColor = '#ffffff';
+    
             const heading = document.createElement('h4');
             heading.textContent = title;
+            heading.style.fontWeight = 'bold';
+            heading.style.marginBottom = '8px';
+            heading.style.color = '#333';
+    
             section.appendChild(heading);
-
+    
+            const paragraph = document.createElement('p');
+            paragraph.id = "RH__FAQParagraph";
+            paragraph.textContent = option;
+            paragraph.style.marginRight = '6px';
+            paragraph.style.textWrap = 'wrap';
+            paragraph.style.maxWidth = '20vw';
+    
+            section.appendChild(paragraph);
+    
+            return section;
+        }
+    
+        function createCheckboxSection(title, options) {
+            const section = document.createElement('div');
+            section.style.border = '1px solid #e0e0e0';
+            section.style.borderRadius = '8px';
+            section.style.padding = '10px';
+            section.style.backgroundColor = '#ffffff';
+    
+            const heading = document.createElement('h4');
+            heading.textContent = title;
+            heading.style.fontWeight = 'bold';
+            heading.style.marginBottom = '8px';
+            heading.style.color = '#333';
+    
+            section.appendChild(heading);
+    
             options.forEach(option => {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = option;
                 checkbox.value = option;
-
+                checkbox.style.marginRight = '6px';
+    
                 checkbox.addEventListener('change', () => {
                     updateTextarea(generateReview());
                 });
-
+    
                 const label = document.createElement('label');
                 label.htmlFor = option;
                 label.textContent = option;
-
+                label.style.marginRight = '10px';
+    
                 section.appendChild(checkbox);
                 section.appendChild(label);
                 section.appendChild(document.createElement('br'));
             });
-
+    
             return section;
         }
-
+    
         function createRadioSection(title, name, options) {
             const section = document.createElement('div');
+            section.style.border = '1px solid #e0e0e0';
+            section.style.borderRadius = '8px';
+            section.style.padding = '10px';
+            section.style.backgroundColor = '#ffffff';
+    
             const heading = document.createElement('h4');
             heading.textContent = title;
+            heading.style.fontWeight = 'bold';
+            heading.style.marginBottom = '8px';
+            heading.style.color = '#333';
+    
             section.appendChild(heading);
-
+    
             options.forEach(option => {
                 const radio = document.createElement('input');
                 radio.type = 'radio';
                 radio.name = name;
                 radio.value = option;
-
+                radio.style.marginRight = '6px';
+    
                 radio.addEventListener('change', () => {
                     updateTextarea(generateReview());
                 });
-
+    
                 const label = document.createElement('label');
                 label.htmlFor = option;
                 label.textContent = option;
-
+                label.style.marginRight = '10px';
+    
                 section.appendChild(radio);
                 section.appendChild(label);
                 section.appendChild(document.createElement('br'));
             });
-
+    
             return section;
         }
-
+    
         const workSection = createCheckboxSection("Работа на парах", [
             "Слушает на парах",
             "Выполняет задания",
             "Отвлекается"
         ]);
-
+    
         const homeworkSection = createRadioSection("ДЗ", "homework", [
             "Отсутствие упоминания",
             "Выполняет",
             "Не выполняет",
             "Проблема с дедлайнами"
         ]);
-
+    
         const attendanceSection = createRadioSection("Посещаемость", "attendance", [
             "Отсутствие упоминания",
             "Опаздывает",
             "Приходит вовремя"
         ]);
 
+        const faqSection = createFAQSection("Справка", 'Отзыв будет сформирован неправильно если не выбирать ничего из секции "работа на парах", эта часть отзыва является обязательной.')
+    
         container.appendChild(workSection); 
         container.appendChild(homeworkSection);
         container.appendChild(attendanceSection);
+        container.appendChild(faqSection);
         targetDiv.appendChild(container);
-
+    
         return true;
-    }
+    }    
 
     const observer = new MutationObserver((mutations, obs) => {
         if (addElements()) {
