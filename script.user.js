@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         ReviewHelper
+// @name         OmniHelper
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  Try to write an individual review for more than 100 students and not to die.
