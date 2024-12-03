@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         OmniHelper
+// @name         Omni Assistant
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  Try to write an individual review for more than 100 students and not to die.
+// @description  Useful utilities for working with Omni
 // @author       itsdust0n
 // @match        https://omni.top-academy.ru/*
 // @icon         https://omni.top-academy.ru/favicon.ico?v=2
