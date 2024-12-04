@@ -11,7 +11,7 @@
 
 (function() {
     'use strict';
-
+    
     const listeningOnClasses = [
         "слушает на занятиях",
         "слушает материал",
@@ -22,6 +22,7 @@
         "слушает и воспринимает информацию на занятиях"
     ];
 
+
     const doingPracticesOnClasses = [
         "выполняет задания на паре",
         "выполняет поставленные задания",
@@ -30,6 +31,7 @@
         "выполняет практики",
         "занимается выполнением практических заданий на паре"
     ];
+
 
     const getDistractedOnClasses = [
         "отвлекается на занятиях",
@@ -43,6 +45,7 @@
         "порой не сосредотачивается на занятиях"
     ];
 
+
     const doingHW = [
         "Выполняет домашние задания в срок",
         "Выполняет домашние задания",
@@ -53,6 +56,7 @@
         "Успешно выполняет ДЗ в установленные сроки"
     ];
 
+
     const notDoingHomework = [
         "не выполняет домашние задания",
         "игнорирует домашние задания",
@@ -61,6 +65,7 @@
         "не приступает к выполнению ДЗ",
         "не сдает ДЗ"
     ];
+
 
     const hwDeadlineProblems = [
         "выполняет домашние задания с опозданием",
@@ -71,6 +76,7 @@
         "бывают проблемы с соблюдением срока сдачи ДЗ",
         "периодически не успевает сдать домашку вовремя"
     ];
+
 
     const goingOnTime = [
         "на пары приходит вовремя",
@@ -83,6 +89,7 @@
         "не опаздывает на занятия",
     ];
 
+
     const goingLate = [
         "опаздывает на занятия",
         "опаздывает на пары",
@@ -93,6 +100,7 @@
         "есть проблема с пунктуальностью",
         "иногда опаздывает на занятия"
     ];
+
 
     const recommendations = {
         distraction: [
@@ -140,15 +148,18 @@
         ]
     };
 
+
     const savedSelections = {
         work: {},
         homework: null,
         attendance: null
     };
 
+
     function getRandomElement(array) {
         return array[Math.floor(Math.random() * array.length)];
     }
+
 
     function getStudentName() {
         const nameElement = document.querySelector(".student-name.ng-binding");
@@ -156,6 +167,7 @@
         const nameParts = nameElement.textContent.trim().split(" ");
         return nameParts.length > 1 ? nameParts[1] : nameParts[0];
     }
+
 
     function updateTextarea(reviewText) {
         const textarea = document.querySelector(".area_wrap textarea");
@@ -165,17 +177,18 @@
             console.warn("Поле комментария не найдено");
         }
     }
-    
+
+
     function generateReview() {
         const studentName = getStudentName();
         if (!studentName) return "Имя студента не найдено";
-    
+
         let positives = [];
         let negatives = [];
         let negativesCodes = [];
         let homeworkReview = ""; // Новая переменная для домашнего задания
         let recommendation = "";
-    
+
         // Работа на парах
         if (document.getElementById("Слушает на парах")?.checked) {
             if (!savedSelections.work.listening) {
@@ -196,7 +209,7 @@
             negatives.push(savedSelections.work.distracted);
             negativesCodes.push("distraction");
         }
-    
+
         // Домашнее задание
         let homeworkStatus = document.querySelector("input[name='homework']:checked")?.value;
         if (homeworkStatus) {
@@ -232,10 +245,10 @@
                 positives.push(savedSelections.attendance);
             }
         }
-    
+
         // Формируем отзыв
         let reviewParts = []; // Начинаем с пустого массива
-    
+
         // Положительные замечания
         if (positives.length > 0) {
             let positivesText;
@@ -249,18 +262,18 @@
             }
             reviewParts.push(positivesText);
         }
-    
+
         // Добавляем предложение о домашнем задании
         if (homeworkReview) {
             reviewParts.push(homeworkReview); // Не добавляем точку здесь
         }
-    
+
         // Негативные замечания
         if (negatives.length > 0) {
             const negativeIntro = Math.random() < 0.5 ? "Но" : "Однако";
             reviewParts.push(`${negativeIntro} ${negatives.join(" и ")}`);
         }
-    
+
         // Рекомендации
         if (negativesCodes.includes("notDoingHomework")) {
             recommendation = getRandomElement(recommendations.notDoingHomework);
@@ -278,10 +291,10 @@
         if (recommendation === "") {
             recommendation = getRandomElement(recommendations.overallImprovement);
         }
-    
+
         // Формируем финальный отзыв, добавляя имя студента только один раз
         let finalReview = `${studentName} ${reviewParts.join(". ")}. ${recommendation.trim()}`;
-    
+
         // Убираем лишнюю точку, если она в конце
         if (finalReview.endsWith('. .')) {
             finalReview = finalReview.slice(0, -1); // Убираем лишнюю точку
@@ -291,17 +304,17 @@
         // Возвращаем финальный отзыв
         return finalReview.trim();
     }
-    
-    
-    function addElements() {
+
+
+    function initializeReviewAssistantUI() {
         const reviewsDiv = document.getElementById('reviews');
         if (!reviewsDiv) return false;
-    
+
         const targetDiv = reviewsDiv.querySelector('.paddingLeft.clearfix.paddingRight');
         if (!targetDiv) return false;
-    
+
         if (targetDiv.querySelector('#custom-checkbox-section')) return true;
-    
+
         const container = document.createElement('div');
         container.id = 'custom-checkbox-section';
         container.style.display = 'flex';
@@ -312,124 +325,127 @@
         container.style.backgroundColor = '#f9f9f9';
         container.style.marginTop = '15px';
 
+
         function createFAQSection(title, option) {
             const section = document.createElement('div');
             section.style.border = '1px solid #e0e0e0';
             section.style.borderRadius = '8px';
             section.style.padding = '10px';
             section.style.backgroundColor = '#ffffff';
-    
+
             const heading = document.createElement('h4');
             heading.textContent = title;
             heading.style.fontWeight = 'bold';
             heading.style.marginBottom = '8px';
             heading.style.color = '#333';
-    
+
             section.appendChild(heading);
-    
+
             const paragraph = document.createElement('p');
             paragraph.id = "RH__FAQParagraph";
             paragraph.textContent = option;
             paragraph.style.marginRight = '6px';
             paragraph.style.textWrap = 'wrap';
             paragraph.style.maxWidth = '20vw';
-    
+
             section.appendChild(paragraph);
-    
+
             return section;
         }
-    
+
+
         function createCheckboxSection(title, options) {
             const section = document.createElement('div');
             section.style.border = '1px solid #e0e0e0';
             section.style.borderRadius = '8px';
             section.style.padding = '10px';
             section.style.backgroundColor = '#ffffff';
-    
+
             const heading = document.createElement('h4');
             heading.textContent = title;
             heading.style.fontWeight = 'bold';
             heading.style.marginBottom = '8px';
             heading.style.color = '#333';
-    
+
             section.appendChild(heading);
-    
+
             options.forEach(option => {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = option;
                 checkbox.value = option;
                 checkbox.style.marginRight = '6px';
-    
+
                 checkbox.addEventListener('change', () => {
                     updateTextarea(generateReview());
                 });
-    
+
                 const label = document.createElement('label');
                 label.htmlFor = option;
                 label.textContent = option;
                 label.style.marginRight = '10px';
-    
+
                 section.appendChild(checkbox);
                 section.appendChild(label);
                 section.appendChild(document.createElement('br'));
             });
-    
+
             return section;
         }
-    
+
+
         function createRadioSection(title, name, options) {
             const section = document.createElement('div');
             section.style.border = '1px solid #e0e0e0';
             section.style.borderRadius = '8px';
             section.style.padding = '10px';
             section.style.backgroundColor = '#ffffff';
-    
+
             const heading = document.createElement('h4');
             heading.textContent = title;
             heading.style.fontWeight = 'bold';
             heading.style.marginBottom = '8px';
             heading.style.color = '#333';
-    
+
             section.appendChild(heading);
-    
+
             options.forEach(option => {
                 const radio = document.createElement('input');
                 radio.type = 'radio';
                 radio.name = name;
                 radio.value = option;
                 radio.style.marginRight = '6px';
-    
+
                 radio.addEventListener('change', () => {
                     updateTextarea(generateReview());
                 });
-    
+
                 const label = document.createElement('label');
                 label.htmlFor = option;
                 label.textContent = option;
                 label.style.marginRight = '10px';
-    
+
                 section.appendChild(radio);
                 section.appendChild(label);
                 section.appendChild(document.createElement('br'));
             });
-    
+
             return section;
         }
-    
+
         const workSection = createCheckboxSection("Работа на парах", [
             "Слушает на парах",
             "Выполняет задания",
             "Отвлекается"
         ]);
-    
+
         const homeworkSection = createRadioSection("ДЗ", "homework", [
             "Отсутствие упоминания",
             "Выполняет",
             "Не выполняет",
             "Проблема с дедлайнами"
         ]);
-    
+
         const attendanceSection = createRadioSection("Посещаемость", "attendance", [
             "Отсутствие упоминания",
             "Опаздывает",
@@ -449,11 +465,28 @@
         return true;
     }
 
-    const observer = new MutationObserver((mutations, obs) => {
-        if (addElements()) {
-            obs.disconnect();
-        }
-    });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    function monitorUrlChanges() {
+        let currentStudent = null;
+
+        const observer = new MutationObserver(() => {
+            const newStudentName = document.querySelector('.student-name.ng-binding')?.textContent;
+            if (newStudentName && newStudentName !== currentStudent) {
+                currentStudent = newStudentName;
+                initializeReviewAssistantUI();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    function initUI() {
+        initializeReviewAssistantUI();
+        monitorUrlChanges();
+    }
+
+    initUI();
 })();
