@@ -449,11 +449,21 @@
         return true;
     }
 
-    const observer = new MutationObserver((mutations, obs) => {
+    function retryAddingElements() {
+        if (!addElements()) {
+            setTimeout(retryAddingElements, 500);
+        }
+    }
+
+    const observer = new MutationObserver(() => {
         if (addElements()) {
-            obs.disconnect();
+            observer.disconnect();
         }
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
+
+    window.addEventListener('load', () => {
+        setTimeout(retryAddingElements, 1000);
+    });
 })();
