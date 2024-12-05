@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Omni Assistant
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Useful utilities for working with Omni
 // @author       itsdust0n
 // @match        https://omni.top-academy.ru/*
