@@ -135,7 +135,7 @@
     };
 
 
-    const ReviewAssistant = ( function() {
+    const ReviewAssistant = (function() {
         function init() {
             initializeUI();
             monitorUrlChanges();
@@ -489,6 +489,16 @@
     
 
         return { init };
+    })();
+
+
+    const ScriptSettings = (function() {
+        // something will be here soon
+    })();
+
+
+    const PayrollCalculator = (function() {
+        // something will be here soon
     })();
 
 
