@@ -87,6 +87,3 @@ Egor Balenko - [@itsdust0n](https://t.me/itsdust0n) - contact@dust0n.ru
 Project Link: [https://github.com/itsdust0n/OmniAssistant](https://github.com/itsdust0n/OmniAssistant)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
