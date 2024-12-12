@@ -1,12 +1,16 @@
 // ==UserScript==
 // @name         Omni Assistant
-// @namespace    http://tampermonkey.net/
+// @namespace    https://github.com/itsdust0n/OmniAssistant
 // @version      1.1
 // @description  Useful utilities for working with Omni
 // @author       itsdust0n
 // @match        https://omni.top-academy.ru/*
 // @icon         https://omni.top-academy.ru/favicon.ico?v=2
 // @grant        none
+// @homepageURL  https://github.com/itsdust0n/OmniAssistant
+// @supportURL   https://github.com/itsdust0n/OmniAssistant/issues
+// @downloadURL  https://github.com/itsdust0n/OmniAssistant/raw/refs/heads/main/omniassistant.user.js
+// @updateURL    https://github.com/itsdust0n/OmniAssistant/raw/refs/heads/main/omniassistant.meta.js
 // ==/UserScript==
 
 (function() {
