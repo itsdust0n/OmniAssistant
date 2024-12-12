@@ -9,7 +9,7 @@
 // @grant        none
 // @homepageURL  https://github.com/itsdust0n/OmniAssistant
 // @supportURL   https://github.com/itsdust0n/OmniAssistant/issues
-// @downloadURL  https://github.com/itsdust0n/OmniAssistant/raw/refs/heads/main/script.user.js
+// @downloadURL  https://github.com/itsdust0n/OmniAssistant/raw/refs/heads/main/omniassistant.user.js
 // @updateURL    https://github.com/itsdust0n/OmniAssistant/raw/refs/heads/main/omniassistant.meta.js
 // ==/UserScript==
 
