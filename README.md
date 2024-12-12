@@ -62,7 +62,7 @@ First, you should install an extension in your browser that allows you to instal
 ### Installation
 
 If you want to have the autoupdate feature from your extension that allows you to use userscripts (e.g. <a href="https://www.tampermonkey.net/">Tampermonkey</a>) to work, then you should follow this steps:
-1. Go to <a href="https://github.com/itsdust0n/OmniAssistant/raw/refs/heads/main/script.user.js">raw version</a> of userscript code in main branch.
+1. Go to <a href="https://github.com/itsdust0n/OmniAssistant/raw/refs/heads/main/omniassistant.user.js">raw version</a> of userscript code in main branch.
 2. Agree to install userscript.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
